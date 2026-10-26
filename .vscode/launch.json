@@ -1,0 +1,42 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Serve the portal (localhost:8081)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.serve",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONHASHSEED": "0",
+        "PORT": "8081",
+        "ARTIFACT": "${workspaceFolder}/artifacts/indexes.pkl"
+      }
+    },
+    {
+      "name": "Build the indexes (writes artifacts/)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.build_index",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONHASHSEED": "0",
+        "ARTIFACT": "${workspaceFolder}/artifacts/indexes.pkl"
+      }
+    },
+    {
+      "name": "Sweep L2",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.sweep_l2",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": { "PYTHONHASHSEED": "0" }
+    }
+  ]
+}

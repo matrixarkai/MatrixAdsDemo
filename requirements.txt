@@ -1,0 +1,5 @@
+# Pinned to exactly what the Dockerfile installs, so a local run and a container run
+# are the same program. lightgbm is only needed for the opt-in GBDT comparison
+# (ENABLE_GBDT=1); nothing on the serving path imports it.
+numpy==2.3.4
+lightgbm==4.6.0

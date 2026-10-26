@@ -1,0 +1,621 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 MatrixArkAI -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ads Serving Portal</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b24; --panel2:#1c222d; --line:#2a323f;
+    --ink:#e6edf3; --dim:#8b97a6; --accent:#5ac8fa; --good:#56d364; --warn:#e3b341; --bad:#f85149;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;
+         align-items:baseline;gap:18px;flex-wrap:wrap}
+  h1{margin:0;font-size:17px;letter-spacing:.2px}
+  .sub{color:var(--dim);font-size:12.5px}
+  nav{display:flex;gap:4px;padding:10px 22px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  nav button{background:none;border:0;color:var(--dim);padding:9px 14px;cursor:pointer;
+             font-size:13px;border-bottom:2px solid transparent}
+  nav button:hover{color:var(--ink)}
+  nav button.on{color:var(--ink);border-bottom-color:var(--accent)}
+  main{padding:20px 22px 60px;max-width:1180px}
+  section{display:none} section.on{display:block}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+        padding:12px 15px;min-width:132px}
+  .card .k{color:var(--dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px}
+  .card .v{font-family:var(--mono);font-size:21px;margin-top:3px}
+  .card .n{color:var(--dim);font-size:11.5px;font-family:var(--mono)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+         padding:16px 18px;margin-bottom:16px}
+  .panel h2{margin:0 0 4px;font-size:14px}
+  .panel p.note{color:var(--dim);font-size:12.5px;margin:0 0 14px;max-width:78ch}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  th{text-align:left;color:var(--dim);font-weight:500;padding:6px 8px;
+     border-bottom:1px solid var(--line);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+  td{padding:6px 8px;border-bottom:1px solid #202733}
+  tr:last-child td{border-bottom:0}
+  .num{text-align:right}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+        padding:6px 12px;cursor:pointer;font-size:12.5px}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{border-color:var(--accent);background:#17313d}
+  .chip .m{color:var(--dim);font-family:var(--mono);font-size:11.5px}
+  .ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px;
+       font-size:12.5px;color:var(--dim)}
+  select,input[type=range]{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+         border-radius:6px;padding:5px 8px;font-size:12.5px;font-family:inherit}
+  .funnel{display:flex;flex-direction:column;gap:7px}
+  .fr{display:grid;grid-template-columns:230px 1fr 92px 74px;gap:12px;align-items:center}
+  .fr .lab{font-size:12.5px}
+  .fr .bar{height:22px;background:var(--panel2);border-radius:5px;overflow:hidden}
+  .fr .bar i{display:block;height:100%;background:linear-gradient(90deg,#1f6feb,#5ac8fa)}
+  .fr .ct,.fr .ms{font-family:var(--mono);font-size:12.5px;text-align:right}
+  .fr .ms{color:var(--dim)}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);
+       padding:1.5px 5px;border-radius:4px;color:#b9c6d3}
+  .clause{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .ok{color:var(--good)} .no{color:var(--bad)} .mid{color:var(--warn)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--dim);margin-bottom:8px}
+  .legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:860px){.two{grid-template-columns:1fr}.fr{grid-template-columns:150px 1fr 70px 60px}}
+  ul.reasons{margin:0;padding-left:18px;color:var(--dim);font-size:13px;max-width:82ch}
+  ul.reasons li{margin-bottom:9px} ul.reasons b{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ads Serving Portal</h1>
+  <span class="sub" id="hdr">loading…</span>
+</header>
+
+<nav>
+  <button class="on" data-t="serve">Serve a request</button>
+  <button data-t="retrieval">Retrieval</button>
+  <button data-t="model">Model</button>
+  <button data-t="design">Design notes</button>
+  <button data-t="walk">Walkthrough</button>
+</nav>
+
+<main>
+<!-- ───────────────────────── serve ───────────────────────── -->
+<section id="serve" class="on">
+  <div class="panel">
+    <h2>Pick a request</h2>
+    <p class="note">Each chip is a user profile. The pipeline runs live in the container —
+      every number below is measured on this request, not precomputed.</p>
+    <div class="chips" id="users"></div>
+    <div class="ctl">
+      <label>retrieval strategy
+        <select id="strategy">
+          <option value="filtered_ann">filtered ANN (filter inside the search)</option>
+          <option value="search_then_filter">search then filter (global top-K, then drop)</option>
+          <option value="exact_in_eligible">exact within eligible (ground truth)</option>
+        </select>
+      </label>
+      <label>nprobe <input type="range" id="nprobe" min="1" max="64" value="8" step="1">
+        <span id="nprobeV" style="font-family:var(--mono)">8</span></label>
+    </div>
+  </div>
+
+  <div class="cards" id="reqCards"></div>
+
+  <div class="panel">
+    <h2>Funnel</h2>
+    <p class="note">Bars are candidate counts on a log scale; the right column is the time that
+      stage spent. Eligibility is exact and the ANN step is not — that asymmetry is deliberate.</p>
+    <div class="funnel" id="funnel"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Auction result</h2>
+    <p class="note">Ranked by eCPM — bid × pCTR for a click campaign, bid × pCTR × pCVR for a
+      conversion one. Second price: the winner pays what it needed to beat the next eCPM,
+      divided back out by whatever it is charged for, so <em>price &lt; bid</em>. “Matched
+      clause” is the targeting expression that made the ad eligible, so every served ad can
+      answer “why me”.</p>
+    <table><thead><tr>
+      <th>#</th><th>ad</th><th>goal</th><th>category</th><th>advertiser</th>
+      <th class="num">pCTR</th><th class="num">pCVR</th><th class="num">bid ¢</th>
+      <th class="num">eCPM</th><th class="num">price ¢</th><th>matched clause</th>
+    </tr></thead><tbody id="winners"></tbody></table>
+    <p class="note" style="margin:12px 0 0">A <code>cpc</code> bid buys a click and prices
+      against pCTR; an <code>ocpm</code> bid buys a conversion and prices against pCTR × pCVR.
+      Two different units, comparable only once both become expected revenue per thousand
+      impressions — which is the whole reason a conversion model exists.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── retrieval ───────────────────────── -->
+<section id="retrieval">
+  <div class="cards" id="retCards"></div>
+
+  <div class="panel">
+    <h2>Why filter inside the search</h2>
+    <p class="note">A global top-K holds roughly K × selectivity eligible ads, so
+      “retrieve then filter” needs K to grow as 1/selectivity to hold recall. Filtering during
+      traversal does not depend on K at all. Recall is measured against exact search restricted
+      to the eligible set.</p>
+    <div class="legend">
+      <span><b style="background:#f85149"></b>search then filter</span>
+      <span><b style="background:#56d364"></b>filtered ANN</span>
+    </div>
+    <div id="kchart"></div>
+    <table style="margin-top:10px"><thead><tr>
+      <th class="num">K</th><th class="num">vectors scored</th>
+      <th class="num">search→filter recall@10</th><th class="num">filtered ANN recall@10</th>
+    </tr></thead><tbody id="ktab"></tbody></table>
+  </div>
+
+  <div class="panel">
+    <h2>ANN recall against latency</h2>
+    <p class="note">IVF with 64 lists. <code>nprobe</code> is the only knob: it buys recall
+      with time, and the whole curve is the argument for why approximate retrieval is
+      acceptable here while approximate <em>eligibility</em> would not be.</p>
+    <div id="nchart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Inverted targeting index</h2>
+    <p class="note">One posting list per (attribute, value), holding (conjunction, predicate).
+      A conjunction fires when the request sets all of its bits.</p>
+    <div class="two">
+      <table><thead><tr><th>longest posting lists</th><th class="num">entries</th></tr></thead>
+        <tbody id="longest"></tbody></table>
+      <table><thead><tr><th>posting list length</th><th class="num">value</th></tr></thead>
+        <tbody id="plen"></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── model ───────────────────────── -->
+<section id="model">
+  <div class="cards" id="mCards"></div>
+
+  <div class="panel">
+    <h2>The ROC curve, and what its area means</h2>
+    <p class="note">Sort every test impression by predicted pCTR, highest first, then walk the
+      list. A click steps the curve <b>up</b> by 1/clicks; a non-click steps it <b>right</b> by
+      1/non-clicks. The dashed diagonal is a coin flip. Area under the curve = the probability
+      a random clicked impression outscores a random non-clicked one — because each rightward
+      step sweeps a rectangle whose height is the share of clicks already above that
+      non-click. The green curve is the generator's own probabilities: the best any model
+      could do on this data.</p>
+    <div class="legend">
+      <span><b style="background:#5ac8fa"></b>this model</span>
+      <span><b style="background:#56d364"></b>ceiling</span>
+      <span><b style="background:#3d4654"></b>random</span>
+    </div>
+    <div id="rocchart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>GAUC — the question the ranker is actually asked</h2>
+    <p class="note">Pooled AUC is computed over every test row at once, so it gets credit for
+      ordering impressions that are never ranked against each other — telling a high-CTR user
+      from a low-CTR one is real signal and useless signal. GAUC computes AUC <em>within</em>
+      each request and averages by impressions. It is almost always lower, and it is the
+      number worth defending. Groups with no click contrast have no AUC and are dropped; the
+      count is shown because a GAUC over a tenth of the traffic is a different claim.</p>
+    <div id="gaucLine" class="clause"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Read against the ceiling, not against zero</h2>
+    <p class="note">The click simulator is a known function, so the AUC of its own
+      probabilities is the best any model could score on this data. A bare AUC number cannot
+      tell you whether 0.60 is good; the distance to the ceiling can.</p>
+    <div id="aucchart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>pCVR — a second model, on a tenth of the data</h2>
+    <p class="note">Conversion is predicted only where a click happened, so it trains on a
+      population this system's own ranker chose, and on far fewer rows. It reaches more of its
+      ceiling than pCTR does and is less well calibrated — both follow from the same fact.
+      Its positive rate is conversions per CLICK, so these numbers do not compare to the
+      pCTR ones above.</p>
+    <div class="cards" id="cvrCards"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Calibration</h2>
+    <p class="note">The auction prices with bid × pCTR, so a model that ranks perfectly and is
+      scaled wrong misprices every impression. Ranking metrics cannot see this, which is why
+      ECE sits next to AUC rather than under it. Points on the diagonal are calibrated.</p>
+    <div id="calchart"></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── design ───────────────────────── -->
+<section id="design">
+  <div class="panel">
+    <h2>The six decisions</h2>
+    <ul class="reasons">
+      <li><b>Eligibility and relevance are different problems.</b> The inverted index answers
+        <em>may</em> this ad serve, and that must be exact — showing an untargeted ad is a
+        billing and compliance failure, not a quality regression. ANN answers <em>is it
+        relevant</em>, where approximate is fine and recall is a dial. The build verifies the
+        index against brute-force predicate evaluation on sampled requests and reports
+        mismatches; it is the one component with a correctness guard rather than a metric.</li>
+      <li><b>Boolean expression indexing, not a posting list per ad.</b> Targeting is DNF:
+        OR over conjunctions. The index maps (attribute, value) → (conjunction, predicate), and
+        a conjunction fires when every one of its predicate bits is set. Counting
+        <em>predicates</em> rather than postings is what keeps a user with four interests from
+        over-satisfying a one-predicate clause.</li>
+      <li><b>Filter inside the ANN search.</b> Measured, not assumed: at K=25 the global
+        retrieve-then-filter path reaches 0.34 recall where filtered search reaches 0.91, and
+        it only catches up at K=300 — thirty times the vectors scored for the same answer.</li>
+      <li><b>Calibration ranks alongside AUC.</b> eCPM = bid × pCTR means the absolute value
+        is the price, not just the order.</li>
+      <li><b>No parameter is per-ad.</b> Ad identity enters through hashed buckets and through
+        Beta-smoothed counting features, so a new ad needs a prior rather than a retrain. That
+        is what makes the simple model the right one as the corpus grows; a per-ad embedding
+        table would need the opposite.</li>
+      <li><b>Second-price auction</b>, so the demo shows price separating from bid.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Built in 90 minutes — what that cost</h2>
+    <p class="note">Deliberately out of scope, in the order I would add them:
+      pCVR and conversion objectives; budget pacing over time and frequency capping; a
+      two-tower encoder trained with in-batch negatives to replace the hand-built ad vectors;
+      GBDT or a small MLP to capture the interactions a linear model on hashed crosses cannot;
+      real click logs (Criteo, Avazu, Taobao) instead of a simulator; counterfactual evaluation
+      from logged propensities; and moving the index to a compressed posting-list format.</p>
+    <p class="note">The model currently reaches about half of the available lift over random.
+      The gap is interaction capacity, not features — the crosses that carry the signal are
+      already hashed in, which is why a GBDT is the next thing to try rather than more
+      feature engineering.</p>
+  </div>
+
+  <div class="panel">
+    <h2>How the two indexes are built, today, in this demo</h2>
+    <ul class="reasons">
+      <li><b>Offline, once, into the image.</b> <code>python -m app.build_index</code> runs in
+        the Dockerfile. It derives the corpus, both indexes and both models, and pickles them
+        to <code>/srv/artifacts/indexes.pkl</code>. A container start <em>loads</em> that file
+        — under a second — instead of deriving anything. Deriving at startup cost 48s idle and
+        over three minutes on a busy machine, and was paid again on every restart.</li>
+      <li><b>Targeting index.</b> Every ad's DNF targeting is flattened into posting lists
+        keyed by <code>(attribute, value)</code>, each entry holding
+        <code>conjunction × 8 + predicate</code>. A request concatenates the lists for its own
+        tokens, takes <code>unique</code>, and <code>bincount</code>s by conjunction — a clause
+        fires when its hit count equals its arity. The <code>unique</code> is load-bearing: it
+        counts distinct <em>predicates</em>, so four interests cannot over-satisfy a
+        one-predicate clause four times over.</li>
+      <li><b>ANN index.</b> k-means with 64 centroids over the ad vectors, then one inverted
+        list per centroid. A query scores 64 centroids, probes the nearest
+        <code>nprobe</code>, and scores exactly inside those. The same posting-list idea as
+        targeting, keyed by geometry instead of attributes.</li>
+      <li><b>Not incremental, and that is the honest gap.</b> An ad added after the build is
+        invisible until the next one. Production layers a delta index merged periodically into
+        the base, and an ANN that accepts inserts. The thing you must <em>not</em> index is the
+        fast-moving state — budget, pacing, pause — which changes by the second and is checked
+        at serve time instead.</li>
+      <li><b>The artifact refuses to be stale.</b> It carries a signature over the scale knobs,
+        the seed and a hash of <code>adsys.py</code>; a mismatch rebuilds. It is written to a
+        temp path and renamed, so a half-written index can never be loaded. An index that loads
+        cleanly and answers for a different corpus is worse than no index, because nothing
+        tells you.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Build profile</h2>
+    <table><thead><tr><th>stage</th><th class="num">ms</th></tr></thead>
+      <tbody id="btimes"></tbody></table>
+  </div>
+</section>
+
+<!-- ───────────────────────── walkthrough ───────────────────────── -->
+<section id="walk">
+  <div class="panel">
+    <h2>Five minutes, in order</h2>
+    <p class="note">What to open, what to say, and the question each point is really
+      answering. The numbers are live — read them off the tabs rather than from here.</p>
+    <ul class="reasons">
+      <li><b>1 · Open “Serve a request”, pick a profile.</b> “One request, end to end, live in
+        the container.” Point at the funnel: 30,000 ads → a few thousand eligible → 300
+        candidates → 5 served, with the milliseconds beside each. <em>The claim: I can account
+        for every stage and its cost.</em></li>
+      <li><b>2 · Point at the asymmetry.</b> Eligibility is <b>exact</b> and verified against
+        brute force at build time; ANN is <b>approximate</b> with a measured recall curve.
+        “Showing an ad outside its targeting is a billing and compliance failure. Showing a
+        slightly less relevant ad is a quality cost. Those deserve different machinery, and
+        conflating them is the mistake I was trying not to make.”</li>
+      <li><b>3 · Show a matched clause in the auction table.</b> Every served ad can answer
+        <em>why me</em> — the exact targeting expression that admitted it, negations included.
+        <em>Advertisers and auditors both ask this.</em></li>
+      <li><b>4 · Switch retrieval strategy to “search then filter”.</b> Then go to Retrieval
+        and show the K-sweep: at K=25 it reaches 0.34 recall where filtered search reaches
+        0.91, and only catches up at K=300 — thirty times the vectors scored for the same
+        answer. “A global top-K holds about K × selectivity eligible ads, so this strategy
+        needs K to grow as 1/selectivity. Filtering inside the search does not.”</li>
+      <li><b>5 · Model tab: read AUC against the ceiling, never alone.</b> The generator is a
+        known function, so the AUC of its own probabilities is the best score anything could
+        get. “0.58 means nothing; 0.58 of an available 0.67 is a statement.”</li>
+      <li><b>6 · Then GAUC, and volunteer the limitation.</b> Pooled AUC gets credit for
+        ordering impressions that are never ranked against each other. GAUC asks the question
+        the ranker is actually asked — within one request — and is lower. <em>Offering the
+        weaker, more honest number is the point.</em></li>
+      <li><b>7 · Then calibration.</b> “eCPM is bid × pCTR, so the probability is a price, not
+        just an order. A model that ranks perfectly and is scaled 2× high overbids every
+        impression, and no ranking metric can see it.” ECE sits beside AUC for that reason.</li>
+      <li><b>8 · pCVR, and why it is a second model.</b> A CPA bid buys a conversion and a CPC
+        bid buys a click — different units, comparable only as expected revenue per thousand
+        impressions. Show a mixed auction where an ad with a <em>lower</em> bid outranks a
+        higher one.</li>
+      <li><b>9 · Close on what you got wrong.</b> The count leakage, the GBDT that lost anyway,
+        the L2 that measured zero, the embedding scale bug. <em>“Here is what I measured, here
+        is what surprised me, here is what I still do not know” beats a clean story — and the
+        follow-up questions land somewhere you have already been.</em></li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Four things that went wrong, and what each one taught</h2>
+    <ul class="reasons">
+      <li><b>Counting features leaked the label.</b> Each row's <code>ad_ctr</code> included
+        its own click. Nothing in AUC says “leak” — it showed up as a model that could not be
+        improved, with boosting stopping after 3 rounds. Fixed by time-shifting every row's
+        counts to the history before it. It cost the linear model 0.5976 → 0.5918, and the
+        lower number is the true one.</li>
+      <li><b>The GBDT lost, and the leak was not why.</b> Fixing it moved calibration 7× and
+        the stopping point 3 → 23 rounds, and the ranking not at all. The likely remainder:
+        this signal is a sum of many <em>weak</em> pairwise interactions, which explicit
+        crosses hold one-per-parameter and trees need a leaf per conjunction for. Untested.</li>
+      <li><b>L2 measured zero.</b> Implemented, swept over six orders of magnitude, and it
+        only ever cost AUC. The overfitting it would have cured was already removed by cutting
+        advertiser cardinality from 400 to 60. The first sweep was also useless — too small a
+        range to move the weights at all, which is its own lesson.</li>
+      <li><b>A scale bug that looked like a modelling result.</b> Normalising the category
+        embedding to unit length while the advertiser term had norm √32 let advertiser
+        dominate the ad vector — 0.06 AUC, invisible until the magnitudes were compared.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt = n => n === undefined || n === null ? "—"
+  : (typeof n === "number" ? (Number.isInteger(n) ? n.toLocaleString() : n.toFixed(4)) : n);
+const card = (k, v, n) => `<div class="card"><div class="k">${k}</div><div class="v">${v}</div>${
+  n ? `<div class="n">${n}</div>` : ""}</div>`;
+
+let M = null, UID = null;
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === b.dataset.t));
+});
+
+// ---- tiny SVG helpers. A chart library would be a bigger dependency than the model. ----
+function svg(w, h, body){
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="overflow:visible">${body}</svg>`;
+}
+function axes(w, h, pad){
+  return `<line x1="${pad}" y1="${h-pad}" x2="${w-6}" y2="${h-pad}" stroke="#2a323f"/>
+          <line x1="${pad}" y1="6" x2="${pad}" y2="${h-pad}" stroke="#2a323f"/>`;
+}
+function lines(w, h, pad, series, xs, xlab, ylab){
+  const X = i => pad + i * (w - pad - 10) / Math.max(1, xs.length - 1);
+  const Y = v => (h - pad) - v * (h - pad - 10);
+  let out = axes(w, h, pad);
+  for (let g = 0; g <= 4; g++){
+    const y = Y(g / 4);
+    out += `<line x1="${pad}" y1="${y}" x2="${w-6}" y2="${y}" stroke="#202733"/>
+            <text x="${pad-7}" y="${y+4}" fill="#8b97a6" font-size="10" text-anchor="end">${(g/4).toFixed(2)}</text>`;
+  }
+  xs.forEach((x, i) => out += `<text x="${X(i)}" y="${h-pad+15}" fill="#8b97a6" font-size="10" text-anchor="middle">${x}</text>`);
+  series.forEach(s => {
+    out += `<path d="${s.v.map((v,i)=>`${i?"L":"M"}${X(i)},${Y(v)}`).join("")}" fill="none" stroke="${s.c}" stroke-width="2"/>`;
+    out += s.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.2" fill="${s.c}"/>`).join("");
+  });
+  out += `<text x="${(w+pad)/2}" y="${h-4}" fill="#8b97a6" font-size="10.5" text-anchor="middle">${xlab}</text>`;
+  return svg(w, h, out);
+}
+
+// ---------------------------------------------------------------- serve
+async function loadUsers(seed){
+  const us = await (await fetch("/api/users?seed=" + seed)).json();
+  $("#users").innerHTML = us.map(u => `<div class="chip" data-uid="${u.uid}">
+      ${u.country} · ${u.age} · ${u.os}
+      <span class="m">${u.interests.slice(0,3).join(",")}</span></div>`).join("")
+    + `<div class="chip" id="more" style="border-style:dashed">more profiles ↻</div>`;
+  $("#more").onclick = () => loadUsers(Math.floor(Math.random() * 1e6));
+  document.querySelectorAll("#users .chip[data-uid]").forEach(c =>
+    c.onclick = () => run(+c.dataset.uid));
+  if (us.length) run(us[0].uid);
+}
+
+async function run(uid){
+  UID = uid;
+  document.querySelectorAll("#users .chip").forEach(c =>
+    c.classList.toggle("on", +c.dataset.uid === uid));
+  const q = `uid=${uid}&strategy=${$("#strategy").value}&nprobe=${$("#nprobe").value}`;
+  const r = await (await fetch("/api/recommend?" + q)).json();
+  if (r.error){ $("#funnel").innerHTML = `<span class="no">${r.error}</span>`; return; }
+
+  const u = r.user;
+  $("#reqCards").innerHTML =
+    card("profile", `${u.country}`, `${u.city} · ${u.age} · ${u.gender} · ${u.os} · ${u.lang}`) +
+    card("interests", u.interests.length, u.interests.join(", ")) +
+    card("eligible ads", fmt(r.eligible_count), (r.selectivity*100).toFixed(2) + "% of corpus") +
+    card("end to end", r.total_ms.toFixed(1) + " ms", "measured on this request") +
+    card("revenue", r.revenue_cpm.toFixed(1), "expected ¢ / 1000 imp");
+
+  const max = Math.max(...r.stages.map(s => Math.log10(Math.max(1, s.n))));
+  $("#funnel").innerHTML = r.stages.map(s => {
+    const w = (Math.log10(Math.max(1, s.n)) / (max || 1)) * 100;
+    return `<div class="fr"><span class="lab">${s.stage}</span>
+      <span class="bar"><i style="width:${w.toFixed(1)}%"></i></span>
+      <span class="ct">${fmt(s.n)}</span><span class="ms">${s.ms.toFixed(2)} ms</span></div>`;
+  }).join("");
+
+  $("#winners").innerHTML = r.winners.map(w => {
+    const cl = w.clause ? (w.clause.positives.length
+        ? w.clause.positives.map(p => `${p[0]}∈{${p[1].join("|")}}`).join(" ∧ ")
+        : "all users")
+      + (w.clause.negatives.length ? " ∧ ¬" + w.clause.negatives.map(p =>
+          `${p[0]}∈{${p[1].join("|")}}`).join(" ∧ ¬") : "")
+      : "—";
+    const goal = w.objective === "ocpm"
+      ? `<span class="mid">ocpm</span>` : `<span style="color:var(--dim)">cpc</span>`;
+    return `<tr><td>${w.rank}</td><td>${w.ad}</td><td>${goal}</td>
+      <td>${w.category}</td><td>${w.advertiser}</td>
+      <td class="num">${w.p_ctr.toFixed(4)}</td>
+      <td class="num">${w.p_cvr == null ? "—" : w.p_cvr.toFixed(4)}</td>
+      <td class="num">${w.bid_cpc.toFixed(2)}</td>
+      <td class="num">${w.ecpm.toFixed(1)}</td>
+      <td class="num ok">${w.price_cpc.toFixed(2)}</td>
+      <td class="clause">${cl}</td></tr>`;
+  }).join("");
+}
+
+$("#strategy").onchange = () => UID !== null && run(UID);
+$("#nprobe").oninput = e => { $("#nprobeV").textContent = e.target.value;
+                              if (UID !== null) run(UID); };
+
+// ---------------------------------------------------------------- metrics
+async function loadMetrics(){
+  M = await (await fetch("/api/metrics")).json();
+  const c = M.corpus, g = M.guard, m = M.model, R = M.retrieval;
+
+  $("#hdr").innerHTML = `${fmt(c.ads)} ads · ${fmt(c.users)} users · ${fmt(c.conjunctions)}
+    targeting clauses · ${fmt(c.postings)} postings · built in
+    ${(M.build_total_ms/1000).toFixed(1)}s`;
+
+  $("#retCards").innerHTML =
+    card("exactness guard", g.mismatches === 0 ? "PASS" : "FAIL",
+         `${g.users_checked} requests vs brute force`) +
+    card("postings", fmt(c.postings), `${fmt(c.distinct_keys)} distinct keys`) +
+    card("clauses", fmt(c.conjunctions), `${fmt(c.catch_all)} target everyone`) +
+    card("selectivity p50", (R.selectivity.p50*100).toFixed(2) + "%",
+         `p10 ${(R.selectivity.p10*100).toFixed(2)}% · p90 ${(R.selectivity.p90*100).toFixed(2)}%`);
+  if (g.mismatches === 0)
+    $("#retCards").firstChild.querySelector(".v").classList.add("ok");
+
+  const ks = R.k_sweep || [];
+  $("#kchart").innerHTML = lines(760, 230, 42,
+    [{v: ks.map(r => r.search_then_filter), c: "#f85149"},
+     {v: ks.map(r => r.filtered_ann), c: "#56d364"}],
+    ks.map(r => r.k), "K — how deep the global retrieval goes");
+  $("#ktab").innerHTML = ks.map(r => `<tr><td class="num">${r.k}</td>
+    <td class="num">${fmt(r.cost_vecs_scored)}</td>
+    <td class="num ${r.search_then_filter < 0.7 ? "no" : r.search_then_filter < 0.9 ? "mid" : ""}">${r.search_then_filter.toFixed(3)}</td>
+    <td class="num ok">${r.filtered_ann.toFixed(3)}</td></tr>`).join("");
+
+  const nc = R.nprobe_curve;
+  const maxms = Math.max(...nc.map(r => r.ms));
+  $("#nchart").innerHTML = lines(760, 230, 42,
+    [{v: nc.map(r => r.recall_at_50), c: "#5ac8fa"},
+     {v: nc.map(r => r.ms / maxms), c: "#e3b341"}],
+    nc.map(r => r.nprobe), "nprobe — lists probed per query") +
+    `<div class="legend" style="margin-top:8px">
+       <span><b style="background:#5ac8fa"></b>recall@50</span>
+       <span><b style="background:#e3b341"></b>latency, scaled to ${maxms.toFixed(1)} ms max</span></div>`;
+
+  $("#longest").innerHTML = R.longest_lists.map(r =>
+    `<tr><td>${r.key}</td><td class="num">${fmt(r.len)}</td></tr>`).join("");
+  $("#plen").innerHTML = Object.entries(R.posting_len).map(([k, v]) =>
+    `<tr><td>${k}</td><td class="num">${fmt(v)}</td></tr>`).join("");
+
+  const lift = (m.auc - 0.5), ceil = (m.auc_ceiling - 0.5);
+  $("#mCards").innerHTML =
+    card("AUC", m.auc.toFixed(4), `ceiling ${m.auc_ceiling.toFixed(4)}`) +
+    (m.gauc ? card("GAUC", m.gauc.gauc.toFixed(4),
+       `within-request · ceiling ${(m.gauc_ceiling || 0).toFixed(4)}`) : "") +
+    card("of available lift", (100 * lift / ceil).toFixed(0) + "%", "over a random ranker") +
+    card("log loss", m.logloss.toFixed(5), `ceiling ${m.logloss_ceiling.toFixed(5)}`) +
+    card("ECE", m.ece.toFixed(5), "calibration error") +
+    card("mean pCTR", m.mean_pred.toFixed(5), `actual CTR ${m.base_ctr.toFixed(5)}`) +
+    card("test rows", fmt(m.n_test), `of ${fmt(m.n_events)} events`);
+
+  if (m.roc && m.roc.length){
+    const S = 340, P = 44;
+    const RX = v => P + v * (S - P - 12), RY = v => (S - P) - v * (S - P - 12);
+    const path = pts => pts.map((p, i) => `${i ? "L" : "M"}${RX(p.fpr)},${RY(p.tpr)}`).join("");
+    $("#rocchart").innerHTML = svg(S, S,
+      axes(S, S, P) +
+      `<line x1="${RX(0)}" y1="${RY(0)}" x2="${RX(1)}" y2="${RY(1)}"
+             stroke="#3d4654" stroke-dasharray="4 4"/>` +
+      `<path d="${path(m.roc_ceiling || [])}" fill="none" stroke="#56d364" stroke-width="1.8"/>` +
+      `<path d="${path(m.roc)}" fill="none" stroke="#5ac8fa" stroke-width="2.2"/>` +
+      [0, 0.25, 0.5, 0.75, 1].map(v => `
+        <text x="${RX(v)}" y="${S-P+15}" fill="#8b97a6" font-size="10" text-anchor="middle">${v}</text>
+        <text x="${P-7}" y="${RY(v)+4}" fill="#8b97a6" font-size="10" text-anchor="end">${v}</text>`).join("") +
+      `<text x="${(S+P)/2}" y="${S-6}" fill="#8b97a6" font-size="10.5" text-anchor="middle">false positive rate — non-clicks shown</text>
+       <text x="13" y="${(S-P)/2}" fill="#8b97a6" font-size="10.5" text-anchor="middle"
+             transform="rotate(-90 13 ${(S-P)/2})">true positive rate — clicks captured</text>`);
+  }
+
+  const G = m.gauc;
+  $("#gaucLine").innerHTML = !G ? "not computed" :
+    `GAUC <b class="ok">${G.gauc.toFixed(4)}</b> vs pooled AUC ${m.auc.toFixed(4)}
+     &nbsp;·&nbsp; ceiling ${(m.gauc_ceiling || 0).toFixed(4)}
+     &nbsp;·&nbsp; ${fmt(G.groups_used)} requests, ${fmt(G.rows_used)} rows
+     &nbsp;·&nbsp; ${fmt(G.groups_skipped)} requests skipped with no click contrast
+     (${fmt(G.rows_skipped)} rows)`;
+
+  const cv = m.cvr || {};
+  $("#cvrCards").innerHTML = cv.auc === undefined
+    ? card("pCVR", "—", cv.note || "not trained")
+    : card("AUC", cv.auc.toFixed(4), `ceiling ${cv.auc_ceiling.toFixed(4)}`) +
+      card("of available lift", (100 * (cv.auc - 0.5) / (cv.auc_ceiling - 0.5)).toFixed(0) + "%",
+           "over a random ranker") +
+      card("ECE", cv.ece.toFixed(5), "calibration error") +
+      card("mean pCVR", cv.mean_pred.toFixed(5), `actual ${cv.base_cvr.toFixed(5)}`) +
+      card("clicked test rows", fmt(cv.n_test), "the only rows with a label");
+
+  const bw = 150, bh = 210, base = bh - 34;
+  const bar = (x, v, lo, hi, col, lab, val) => {
+    const hgt = (v - lo) / (hi - lo) * (base - 14);
+    return `<rect x="${x}" y="${base - hgt}" width="${bw*0.42}" height="${hgt}" fill="${col}" rx="3"/>
+      <text x="${x + bw*0.21}" y="${base - hgt - 7}" fill="#e6edf3" font-size="12"
+            text-anchor="middle" font-family="ui-monospace">${val}</text>
+      <text x="${x + bw*0.21}" y="${base + 17}" fill="#8b97a6" font-size="11"
+            text-anchor="middle">${lab}</text>`;
+  };
+  $("#aucchart").innerHTML = svg(470, bh,
+    `<line x1="20" y1="${base}" x2="450" y2="${base}" stroke="#2a323f"/>` +
+    bar(40, 0.5, 0.48, m.auc_ceiling + .01, "#3d4654", "random", "0.500") +
+    bar(170, m.auc, 0.48, m.auc_ceiling + .01, "#5ac8fa", "this model", m.auc.toFixed(3)) +
+    bar(300, m.auc_ceiling, 0.48, m.auc_ceiling + .01, "#56d364", "ceiling", m.auc_ceiling.toFixed(3)));
+
+  const cal = m.calibration, W = 470, H = 300, P = 46;
+  const lim = Math.max(...cal.map(p => Math.max(p.pred, p.obs))) * 1.08;
+  const CX = v => P + v / lim * (W - P - 14), CY = v => (H - P) - v / lim * (H - P - 14);
+  $("#calchart").innerHTML = svg(W, H,
+    axes(W, H, P) +
+    `<line x1="${CX(0)}" y1="${CY(0)}" x2="${CX(lim)}" y2="${CY(lim)}"
+           stroke="#3d4654" stroke-dasharray="4 4"/>` +
+    cal.map(p => `<circle cx="${CX(p.pred)}" cy="${CY(p.obs)}" r="4.5" fill="#5ac8fa"
+                   fill-opacity=".85"/>`).join("") +
+    [0, lim/2, lim].map(v => `
+      <text x="${CX(v)}" y="${H-P+15}" fill="#8b97a6" font-size="10" text-anchor="middle">${v.toFixed(3)}</text>
+      <text x="${P-7}" y="${CY(v)+4}" fill="#8b97a6" font-size="10" text-anchor="end">${v.toFixed(3)}</text>`).join("") +
+    `<text x="${(W+P)/2}" y="${H-6}" fill="#8b97a6" font-size="10.5" text-anchor="middle">predicted pCTR</text>
+     <text x="14" y="${(H-P)/2}" fill="#8b97a6" font-size="10.5" text-anchor="middle"
+           transform="rotate(-90 14 ${(H-P)/2})">observed CTR</text>`);
+
+  $("#btimes").innerHTML = M.build_timings.map(t =>
+    `<tr><td>${t.stage}</td><td class="num">${fmt(Math.round(t.ms))}</td></tr>`).join("")
+    + `<tr><td><b>total</b></td><td class="num"><b>${fmt(Math.round(M.build_total_ms))}</b></td></tr>`;
+}
+
+loadMetrics().then(() => loadUsers(1)).catch(e =>
+  $("#hdr").innerHTML = `<span class="no">${e}</span>`);
+</script>
+</body>
+</html>
