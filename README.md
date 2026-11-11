@@ -49,6 +49,21 @@ docker run -d --name ads -p 8080:8080 ads-demo
 - Treat this as a standalone demonstration with generated labels, not a deployed
   advertising system or proof of a storage backend's capacity.
 
+## Explore the demo
+
+| Task | Start with |
+|---|---|
+| Run the local serving portal | The Docker commands above; open `http://localhost:8080`. |
+| Understand eligibility and candidate selection | [The pipeline](#the-pipeline) and [filtered ANN](#why-filtering-happens-inside-the-ann-search). |
+| Inspect the click and conversion objectives | [Time-shifted features](#counting-features-are-time-shifted) and [conversion scoring](#pcvr-and-the-conversion-objective). |
+| Change corpus or model generation | [Build artifacts](#the-indexes-are-a-build-artifact); rebuild the image after changing its inputs. |
+| Find serving and portal code | [Layout](#layout). |
+
+The demo is self-contained: starting its container does not start TemporalStore,
+MatrixObject, MatrixCache, MatrixRaft, or the MatrixArk context runtime. Its
+simulated ranking measurements do not establish storage service throughput,
+real-traffic model quality, or production auction availability.
+
 ## The indexes are a build artifact
 
 `python -m app.build_index` derives the corpus, the inverted targeting index, the IVF ANN
