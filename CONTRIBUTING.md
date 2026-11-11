@@ -3,6 +3,16 @@
 This project is Apache-2.0 and open to anyone in the world. Fork it, change it, open issues, send
 pull requests. Outside contributions are the point, not an exception to manage.
 
+## License and security
+
+Unless explicitly stated otherwise, contributions intentionally submitted for
+inclusion are licensed under
+[Apache-2.0](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/LICENSE),
+without additional terms or conditions.
+For vulnerabilities, follow the
+[security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md)
+instead of posting exploit details in a public issue.
+
 ## Run it
 
 ```bash

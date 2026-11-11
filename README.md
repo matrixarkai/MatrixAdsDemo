@@ -1,7 +1,20 @@
 # MatrixAdsDemo — inverted targeting, ANN retrieval, calibrated pCTR, auction
 
 **Open source under Apache-2.0, for anyone in the world to use, fork, modify and contribute to.**
-Issues and pull requests from outside are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests from outside are welcome — see
+[the contribution guide](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CONTRIBUTING.md).
+
+## Project and community
+
+- [Public source](https://github.com/matrixarkai/MatrixAdsDemo),
+  [issues](https://github.com/matrixarkai/MatrixAdsDemo/issues), and
+  [pull requests](https://github.com/matrixarkai/MatrixAdsDemo/pulls).
+- [Apache-2.0 license](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/LICENSE)
+  and [notices](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/NOTICE).
+- [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
+  and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
+
+## Overview
 
 A short-video style ads recommender, small enough to read end to end. The point is the shape of the
 pipeline and the measurements beside it, not scale: exact eligibility, approximate retrieval,
