@@ -17,6 +17,30 @@ docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
 
+## Start Here
+
+| Goal | Read |
+|---|---|
+| Run the interactive demo | The Docker commands above |
+| Understand the serving stages | [The pipeline](#the-pipeline) |
+| Explore the UI | [What the portal shows](#what-the-portal-shows) |
+| Understand persisted build outputs | [Index artifacts](#the-indexes-are-a-build-artifact) |
+| Evaluate conversion scoring | [Conversion objective](#pcvr-and-the-conversion-objective) |
+
+This is an executable demonstration with generated data, not an ads billing service or
+a distributed feature store. The reported model and retrieval results describe its
+corpus and settings; they are not production traffic guarantees.
+
+## Related Projects
+
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) provides temporal and online
+feature serving, including Feast integrations;
+[MatrixArk](https://github.com/matrixarkai/matrixark) provides the Python context runtime;
+[MatrixObject](https://github.com/matrixarkai/MatrixObject) provides distributed object storage;
+[MatrixCache](https://github.com/matrixarkai/matrixcache) provides embedded tiered caching; and
+[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus.
+These are separate Apache-2.0 projects, not required services for this standalone demo.
+
 ## The indexes are a build artifact
 
 `python -m app.build_index` derives the corpus, the inverted targeting index, the IVF ANN
