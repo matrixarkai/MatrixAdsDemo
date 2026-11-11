@@ -11,6 +11,25 @@ rather than quoted on its own.
 Only dependency on the serving path is numpy. The ANN index and the models are written out by hand,
 because the interesting parts of both are the parts a library hides.
 
+## Project Scope
+
+This is a self-contained demonstration with generated data, not a deployed ad
+exchange or an automatically connected TemporalStore client. The default
+serving path does not require the other MatrixArk services. The timing and
+quality figures below describe the configured synthetic corpus, not production
+traffic, a live click log, or feature-store service QPS.
+
+Related Apache-2.0 projects:
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) serves temporal features,
+[MatrixArk](https://github.com/matrixarkai/matrixark) provides context workflows,
+[MatrixObject](https://github.com/matrixarkai/MatrixObject) provides object storage,
+[MatrixCache](https://github.com/matrixarkai/matrixcache) is an embedded cache, and
+[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus.
+
+## Run Locally
+
+From the repository root:
+
 ```bash
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
 docker run -d --name ads -p 8080:8080 ads-demo
@@ -85,10 +104,11 @@ randomises per process, so two runs of the same image would otherwise score diff
 
 ## Deliberately out of scope
 
-pCVR and conversion objectives; budget pacing and frequency capping; a two-tower encoder trained
-with in-batch negatives; GBDT or a small MLP for the interactions a linear model on hashed
-crosses cannot reach; real click logs instead of a simulator; counterfactual evaluation from
-logged propensities; compressed posting lists.
+Budget pacing and frequency capping; a two-tower encoder trained with in-batch
+negatives; a small MLP; real click logs instead of a simulator; counterfactual
+evaluation from logged propensities; compressed posting lists; delayed conversion
+feedback. pCVR and conversion objectives are implemented below. GBDT is an
+optional experiment, disabled by default, rather than an absent feature.
 
 ## Counting features are time-shifted
 
