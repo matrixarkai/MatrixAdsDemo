@@ -37,6 +37,18 @@ docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
 
+## Deployment and Upgrade Checklist
+
+- Rebuild the image when changing the generator, model code, seed, or scale
+  settings. Indexes are build artifacts, and the loader rejects a mismatched
+  artifact signature rather than silently serving another corpus.
+- Keep `PYTHONHASHSEED` consistent with the image configuration; hashed model
+  features otherwise change across Python processes.
+- Use the retrieval, model, and serving views for different questions. ANN recall,
+  held-out prediction quality, and request latency are not interchangeable.
+- Treat this as a standalone demonstration with generated labels, not a deployed
+  advertising system or proof of a storage backend's capacity.
+
 ## The indexes are a build artifact
 
 `python -m app.build_index` derives the corpus, the inverted targeting index, the IVF ANN
