@@ -1,7 +1,20 @@
 # MatrixAdsDemo — inverted targeting, ANN retrieval, calibrated pCTR, auction
 
 **Open source under Apache-2.0, for anyone in the world to use, fork, modify and contribute to.**
-Issues and pull requests from outside are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests from outside are welcome — see
+[the contribution guide](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CONTRIBUTING.md).
+
+## Project and community
+
+- [Public source](https://github.com/matrixarkai/MatrixAdsDemo),
+  [issues](https://github.com/matrixarkai/MatrixAdsDemo/issues), and
+  [pull requests](https://github.com/matrixarkai/MatrixAdsDemo/pulls).
+- [Apache-2.0 license](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/LICENSE)
+  and [notices](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/NOTICE).
+- [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
+  and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
+
+## Overview
 
 A short-video style ads recommender, small enough to read end to end. The point is the shape of the
 pipeline and the measurements beside it, not scale: exact eligibility, approximate retrieval,
@@ -11,24 +24,12 @@ rather than quoted on its own.
 Only dependency on the serving path is numpy. The ANN index and the models are written out by hand,
 because the interesting parts of both are the parts a library hides.
 
-## Project Scope
-
-This is a self-contained demonstration with generated data, not a deployed ad
-exchange or an automatically connected TemporalStore client. The default
-serving path does not require the other MatrixArk services. The timing and
-quality figures below describe the configured synthetic corpus, not production
-traffic, a live click log, or feature-store service QPS.
-
-Related Apache-2.0 projects:
-[TemporalStore](https://github.com/matrixarkai/TemporalStore) serves temporal features,
-[MatrixArk](https://github.com/matrixarkai/matrixark) provides context workflows,
-[MatrixObject](https://github.com/matrixarkai/MatrixObject) provides object storage,
-[MatrixCache](https://github.com/matrixarkai/matrixcache) is an embedded cache, and
-[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus.
-
 ## Run Locally
 
-From the repository root:
+This demonstration uses generated data and runs independently of the other
+MatrixArk services. It does not automatically connect to a live feature store.
+The corpus and model timings below are not production traffic or storage-service
+QPS measurements. From the repository root:
 
 ```bash
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
