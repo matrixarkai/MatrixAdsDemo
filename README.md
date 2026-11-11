@@ -24,11 +24,45 @@ rather than quoted on its own.
 Only dependency on the serving path is numpy. The ANN index and the models are written out by hand,
 because the interesting parts of both are the parts a library hides.
 
+## Run Locally
+
+This demonstration uses generated data and runs independently of the other
+MatrixArk services. It does not automatically connect to a live feature store.
+The corpus and model timings below are not production traffic or storage-service
+QPS measurements. From the repository root:
+
 ```bash
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
 docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
+
+## Deployment and Upgrade Checklist
+
+- Rebuild the image when changing the generator, model code, seed, or scale
+  settings. Indexes are build artifacts, and the loader rejects a mismatched
+  artifact signature rather than silently serving another corpus.
+- Keep `PYTHONHASHSEED` consistent with the image configuration; hashed model
+  features otherwise change across Python processes.
+- Use the retrieval, model, and serving views for different questions. ANN recall,
+  held-out prediction quality, and request latency are not interchangeable.
+- Treat this as a standalone demonstration with generated labels, not a deployed
+  advertising system or proof of a storage backend's capacity.
+
+## Explore the demo
+
+| Task | Start with |
+|---|---|
+| Run the local serving portal | The Docker commands above; open `http://localhost:8080`. |
+| Understand eligibility and candidate selection | [The pipeline](#the-pipeline) and [filtered ANN](#why-filtering-happens-inside-the-ann-search). |
+| Inspect the click and conversion objectives | [Time-shifted features](#counting-features-are-time-shifted) and [conversion scoring](#pcvr-and-the-conversion-objective). |
+| Change corpus or model generation | [Build artifacts](#the-indexes-are-a-build-artifact); rebuild the image after changing its inputs. |
+| Find serving and portal code | [Layout](#layout). |
+
+The demo is self-contained: starting its container does not start TemporalStore,
+MatrixObject, MatrixCache, MatrixRaft, or the MatrixArk context runtime. Its
+simulated ranking measurements do not establish storage service throughput,
+real-traffic model quality, or production auction availability.
 
 ## The indexes are a build artifact
 
@@ -98,10 +132,11 @@ randomises per process, so two runs of the same image would otherwise score diff
 
 ## Deliberately out of scope
 
-pCVR and conversion objectives; budget pacing and frequency capping; a two-tower encoder trained
-with in-batch negatives; GBDT or a small MLP for the interactions a linear model on hashed
-crosses cannot reach; real click logs instead of a simulator; counterfactual evaluation from
-logged propensities; compressed posting lists.
+Budget pacing and frequency capping; a two-tower encoder trained with in-batch
+negatives; a small MLP; real click logs instead of a simulator; counterfactual
+evaluation from logged propensities; compressed posting lists; delayed conversion
+feedback. pCVR and conversion objectives are implemented below. GBDT is an
+optional experiment, disabled by default, rather than an absent feature.
 
 ## Counting features are time-shifted
 
