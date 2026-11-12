@@ -43,6 +43,19 @@ Do not attach user identifiers, advertising data, or credentials. Follow the
 [security policy](SECURITY.md) for sensitive reports, not a public issue. For code
 or documentation changes, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Implementation entry points
+
+| Area | Start reading |
+|---|---|
+| Retrieval and auction implementation | [Ads pipeline](app/adsys.py) |
+| Index preparation | [Index builder](app/build_index.py) |
+| Request-serving entry point | [Demo server](app/serve.py) |
+| Browser interface | [Portal](app/portal.html) |
+
+Keep index preparation separate from request-serving measurements. These entry points
+belong to the standalone generated-data demo; connecting live feature or context
+services requires an explicit integration rather than a README configuration change.
+
 ## Overview
 
 A short-video style ads recommender, small enough to read end to end. The point is the shape of the
