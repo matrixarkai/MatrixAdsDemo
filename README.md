@@ -74,12 +74,26 @@ The corpus and model timings below are not production traffic or storage-service
 QPS measurements. From the repository root:
 
 ```bash
+git clone https://github.com/matrixarkai/MatrixAdsDemo.git
+cd MatrixAdsDemo
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
-docker run -d --name ads -p 8080:8080 ads-demo
+docker run -d --name ads -p 127.0.0.1:8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
 
 ## Deployment and Upgrade Checklist
+
+The published port is bound to this computer's loopback interface. Use the demo
+locally; this command does not configure public access, authentication, or TLS.
+To stop and remove the demo container:
+
+```bash
+docker stop ads
+docker rm ads
+```
+
+The `ads-demo` image retains its built indexes, so the same `docker run` command
+can start a new container without rebuilding the image.
 
 - Rebuild the image when changing the generator, model code, seed, or scale
   settings. Indexes are build artifacts, and the loader rejects a mismatched
