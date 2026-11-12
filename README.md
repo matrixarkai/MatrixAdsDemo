@@ -32,9 +32,26 @@ because the interesting parts of both are the parts a library hides.
 
 ```bash
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
-docker run -d --name ads -p 8080:8080 ads-demo
+docker run -d --name ads -p 127.0.0.1:8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
+
+The host binding above keeps this demonstration local. It does not configure
+authentication, TLS, or production traffic handling. After startup, inspect the
+same generated corpus through the portal or the read-only JSON endpoints:
+
+```bash
+curl -fsS http://127.0.0.1:8080/api/metrics
+curl -fsS 'http://127.0.0.1:8080/api/users?seed=1'
+curl -fsS 'http://127.0.0.1:8080/api/recommend?uid=0'
+docker stop ads
+docker rm ads
+```
+
+Stopping or removing this container does not turn its generated measurements
+into a durable feature service. For online feature storage, use
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) and its Feast
+integration; the demo does not provision those services automatically.
 
 ## The indexes are a build artifact
 
