@@ -14,6 +14,18 @@ Issues and pull requests from outside are welcome — see
 - [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
   and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
 
+## Getting Help
+
+Search [public issues](https://github.com/matrixarkai/MatrixAdsDemo/issues) before
+opening a report. Include the revision or image tag, launch command, corpus scale,
+seed, and whether the index was loaded or rebuilt. Provide a synthetic request and
+identify the stage involved: eligibility, retrieval, prediction, or auction. Keep
+startup/index-build time separate from request-serving latency.
+
+Do not attach user identifiers, advertising data, or credentials. Follow the
+[security policy](SECURITY.md) for sensitive reports, not a public issue. For code
+or documentation changes, start with [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Overview
 
 A short-video style ads recommender, small enough to read end to end. The point is the shape of the
