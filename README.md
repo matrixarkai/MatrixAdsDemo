@@ -102,6 +102,12 @@ ANN recall is a dial with a measured curve.
 
 ## What the portal shows
 
+Portal timings describe this generated corpus and the current retrieval settings.
+Keep the built image, user IDs, strategy, and search breadth fixed when comparing
+runs. Inspect recall and funnel counts with latency: scoring fewer eligible
+candidates can be faster while changing auction results. These measurements do
+not establish the throughput or durability of a distributed feature store.
+
 | tab | what is on it |
 | --- | --- |
 | Serve a request | the live funnel for one user: counts and milliseconds per stage, the auction, and the targeting clause that made each winner eligible |
