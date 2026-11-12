@@ -121,6 +121,13 @@ The artifact records a signature over the scale knobs, the seed and a hash of `a
 any of those move, the loader rejects it and rebuilds, because an index that loads cleanly and
 answers for a different corpus is worse than no index at all. `REBUILD=1` forces a rebuild.
 
+Only load index artifacts produced by a trusted build. The loader uses Python
+`pickle` before checking the recorded signature; that signature checks corpus
+compatibility, not authenticity, and cannot make an untrusted pickle safe.
+Do not mount an externally supplied artifact into the server. Rebuild from
+trusted source instead. See the [artifact loader](app/serve.py) and
+[build entry point](app/build_index.py).
+
 Only dependency is numpy. The ANN index and the CTR model are written out by hand, because the
 interesting parts of both are the parts a library hides.
 
