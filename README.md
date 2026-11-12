@@ -44,9 +44,16 @@ same generated corpus through the portal or the read-only JSON endpoints:
 curl -fsS http://127.0.0.1:8080/api/metrics
 curl -fsS 'http://127.0.0.1:8080/api/users?seed=1'
 curl -fsS 'http://127.0.0.1:8080/api/recommend?uid=0'
+curl -fsS 'http://127.0.0.1:8080/api/recommend?uid=0&nprobe=16&strategy=filtered_ann'
 docker stop ads
 docker rm ads
 ```
+
+Use a generated `uid` from `/api/users` when comparing requests. The handler
+maps numeric IDs into the generated corpus; it is not an external user-identity
+lookup. `nprobe` controls the ANN search breadth for that request, not the corpus
+size or the model. Compare the same user, strategy, and built index when changing
+it. The HTTP handler and parameter defaults are in [the server](app/serve.py).
 
 Stopping or removing this container does not turn its generated measurements
 into a durable feature service. For online feature storage, use
