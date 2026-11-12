@@ -14,6 +14,23 @@ Issues and pull requests from outside are welcome — see
 - [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
   and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
 
+## Related Projects
+
+All six projects are independently usable under Apache-2.0. The demo does not
+require the other services; connecting a live backend would be a separate integration.
+
+| Project | Use it for | Execution model |
+|---|---|---|
+| **MatrixAdsDemo (this repository)** | Exploring ads eligibility, retrieval, prediction, and auction | Standalone Python demonstration using generated data and prebuilt artifacts. |
+| [TemporalStore](https://github.com/matrixarkai/TemporalStore) | Temporal features, sequences, and context serving | Serving engine with its own endpoints, persistence, and replication settings. |
+| [MatrixObject](https://github.com/matrixarkai/MatrixObject) | Distributed object storage | Object API with separately configured metadata and replica services. |
+| [MatrixCache](https://github.com/matrixarkai/matrixcache) | Tiered caching inside a Rust application | Embedded library; the application owns authoritative data and network requests. |
+| [MatrixRaft](https://github.com/matrixarkai/matrixraft) | Consensus inside a service | Embedded library; the host supplies transport and state-machine application. |
+| [MatrixArk](https://github.com/matrixarkai/matrixark) | Context ingestion, retrieval, and feedback | Python runtime with explicitly configured storage and model providers. |
+
+For this demo, use [Run Locally](#run-locally) and [Explore the demo](#explore-the-demo).
+Its model and request timings do not measure any of the storage components above.
+
 ## Getting Help
 
 Search [public issues](https://github.com/matrixarkai/MatrixAdsDemo/issues) before
