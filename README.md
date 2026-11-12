@@ -6,6 +6,12 @@ Issues and pull requests from outside are welcome — see
 
 ## Project and community
 
+**On this page:** [Run the demo](#overview) | [Index lifecycle](#the-indexes-are-a-build-artifact) |
+[Pipeline](#the-pipeline) | [Portal](#what-the-portal-shows) |
+[Conversion objective](#pcvr-and-the-conversion-objective) |
+[Optional GBDT](#the-gbdt-attempt-and-why-it-is-off-by-default) |
+[Limitations](#deliberately-out-of-scope).
+
 - [Public source](https://github.com/matrixarkai/MatrixAdsDemo),
   [issues](https://github.com/matrixarkai/MatrixAdsDemo/issues), and
   [pull requests](https://github.com/matrixarkai/MatrixAdsDemo/pulls).
@@ -13,48 +19,6 @@ Issues and pull requests from outside are welcome — see
   and [notices](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/NOTICE).
 - [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
   and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
-
-## Related Projects
-
-All six projects are independently usable under Apache-2.0. The demo does not
-require the other services; connecting a live backend would be a separate integration.
-
-| Project | Use it for | Execution model |
-|---|---|---|
-| **MatrixAdsDemo (this repository)** | Exploring ads eligibility, retrieval, prediction, and auction | Standalone Python demonstration using generated data and prebuilt artifacts. |
-| [TemporalStore](https://github.com/matrixarkai/TemporalStore) | Temporal features, sequences, and context serving | Serving engine with its own endpoints, persistence, and replication settings. |
-| [MatrixObject](https://github.com/matrixarkai/MatrixObject) | Distributed object storage | Object API with separately configured metadata and replica services. |
-| [MatrixCache](https://github.com/matrixarkai/matrixcache) | Tiered caching inside a Rust application | Embedded library; the application owns authoritative data and network requests. |
-| [MatrixRaft](https://github.com/matrixarkai/matrixraft) | Consensus inside a service | Embedded library; the host supplies transport and state-machine application. |
-| [MatrixArk](https://github.com/matrixarkai/matrixark) | Context ingestion, retrieval, and feedback | Python runtime with explicitly configured storage and model providers. |
-
-For this demo, use [Run Locally](#run-locally) and [Explore the demo](#explore-the-demo).
-Its model and request timings do not measure any of the storage components above.
-
-## Getting Help
-
-Search [public issues](https://github.com/matrixarkai/MatrixAdsDemo/issues) before
-opening a report. Include the revision or image tag, launch command, corpus scale,
-seed, and whether the index was loaded or rebuilt. Provide a synthetic request and
-identify the stage involved: eligibility, retrieval, prediction, or auction. Keep
-startup/index-build time separate from request-serving latency.
-
-Do not attach user identifiers, advertising data, or credentials. Follow the
-[security policy](SECURITY.md) for sensitive reports, not a public issue. For code
-or documentation changes, start with [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Implementation entry points
-
-| Area | Start reading |
-|---|---|
-| Retrieval and auction implementation | [Ads pipeline](app/adsys.py) |
-| Index preparation | [Index builder](app/build_index.py) |
-| Request-serving entry point | [Demo server](app/serve.py) |
-| Browser interface | [Portal](app/portal.html) |
-
-Keep index preparation separate from request-serving measurements. These entry points
-belong to the standalone generated-data demo; connecting live feature or context
-services requires an explicit integration rather than a README configuration change.
 
 ## Overview
 
@@ -66,59 +30,11 @@ rather than quoted on its own.
 Only dependency on the serving path is numpy. The ANN index and the models are written out by hand,
 because the interesting parts of both are the parts a library hides.
 
-## Run Locally
-
-This demonstration uses generated data and runs independently of the other
-MatrixArk services. It does not automatically connect to a live feature store.
-The corpus and model timings below are not production traffic or storage-service
-QPS measurements. From the repository root:
-
 ```bash
-git clone https://github.com/matrixarkai/MatrixAdsDemo.git
-cd MatrixAdsDemo
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
-docker run -d --name ads -p 127.0.0.1:8080:8080 ads-demo
+docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
-
-## Deployment and Upgrade Checklist
-
-The published port is bound to this computer's loopback interface. Use the demo
-locally; this command does not configure public access, authentication, or TLS.
-To stop and remove the demo container:
-
-```bash
-docker stop ads
-docker rm ads
-```
-
-The `ads-demo` image retains its built indexes, so the same `docker run` command
-can start a new container without rebuilding the image.
-
-- Rebuild the image when changing the generator, model code, seed, or scale
-  settings. Indexes are build artifacts, and the loader rejects a mismatched
-  artifact signature rather than silently serving another corpus.
-- Keep `PYTHONHASHSEED` consistent with the image configuration; hashed model
-  features otherwise change across Python processes.
-- Use the retrieval, model, and serving views for different questions. ANN recall,
-  held-out prediction quality, and request latency are not interchangeable.
-- Treat this as a standalone demonstration with generated labels, not a deployed
-  advertising system or proof of a storage backend's capacity.
-
-## Explore the demo
-
-| Task | Start with |
-|---|---|
-| Run the local serving portal | The Docker commands above; open `http://localhost:8080`. |
-| Understand eligibility and candidate selection | [The pipeline](#the-pipeline) and [filtered ANN](#why-filtering-happens-inside-the-ann-search). |
-| Inspect the click and conversion objectives | [Time-shifted features](#counting-features-are-time-shifted) and [conversion scoring](#pcvr-and-the-conversion-objective). |
-| Change corpus or model generation | [Build artifacts](#the-indexes-are-a-build-artifact); rebuild the image after changing its inputs. |
-| Find serving and portal code | [Layout](#layout). |
-
-The demo is self-contained: starting its container does not start TemporalStore,
-MatrixObject, MatrixCache, MatrixRaft, or the MatrixArk context runtime. Its
-simulated ranking measurements do not establish storage service throughput,
-real-traffic model quality, or production auction availability.
 
 ## The indexes are a build artifact
 
@@ -134,16 +50,6 @@ demo down and the next start spent minutes rebuilding indexes that had not chang
 The artifact records a signature over the scale knobs, the seed and a hash of `adsys.py`. If
 any of those move, the loader rejects it and rebuilds, because an index that loads cleanly and
 answers for a different corpus is worse than no index at all. `REBUILD=1` forces a rebuild.
-
-Only load index artifacts produced by a trusted build. The loader uses Python
-`pickle` before checking the recorded signature; that signature checks corpus
-compatibility, not authenticity, and cannot make an untrusted pickle safe.
-Do not mount an externally supplied artifact into the server. Rebuild from
-trusted source instead. See the [artifact loader](app/serve.py) and
-[build entry point](app/build_index.py).
-
-Only dependency is numpy. The ANN index and the CTR model are written out by hand, because the
-interesting parts of both are the parts a library hides.
 
 ## The pipeline
 
@@ -198,8 +104,12 @@ randomises per process, so two runs of the same image would otherwise score diff
 Budget pacing and frequency capping; a two-tower encoder trained with in-batch
 negatives; a small MLP; real click logs instead of a simulator; counterfactual
 evaluation from logged propensities; compressed posting lists; delayed conversion
-feedback. pCVR and conversion objectives are implemented below. GBDT is an
-optional experiment, disabled by default, rather than an absent feature.
+feedback.
+
+The demo does include [pCVR and conversion pricing](#pcvr-and-the-conversion-objective)
+and an [optional GBDT experiment](#the-gbdt-attempt-and-why-it-is-off-by-default).
+Those paths use synthetic data, and the GBDT is disabled by default; neither is
+a claim of production model quality.
 
 ## Counting features are time-shifted
 
