@@ -51,9 +51,19 @@ docker rm ads
 
 Use a generated `uid` from `/api/users` when comparing requests. The handler
 maps numeric IDs into the generated corpus; it is not an external user-identity
-lookup. `nprobe` controls the ANN search breadth for that request, not the corpus
-size or the model. Compare the same user, strategy, and built index when changing
-it. The HTTP handler and parameter defaults are in [the server](app/serve.py).
+lookup. Choose the retrieval strategy explicitly:
+
+| `strategy` | Candidate selection |
+|---|---|
+| `filtered_ann` | Default: constrain approximate search to eligible ads. |
+| `search_then_filter` | Search the global ANN index, then remove ineligible candidates. |
+| `exact_in_eligible` | Score the eligible set exactly as a retrieval control. |
+
+`nprobe` defaults to 8 and changes ANN search breadth, not the corpus or model.
+It does not turn exact eligible-set scoring into an ANN search. Compare the
+same user, built index, and scoring model when changing retrieval settings;
+candidate recall and end-to-end auction output are different measurements.
+The HTTP handler and parameter defaults are in [the server](app/serve.py).
 
 Stopping or removing this container does not turn its generated measurements
 into a durable feature service. For online feature storage, use
