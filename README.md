@@ -30,6 +30,16 @@ docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
 
+## Related Projects
+
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) serves temporal features and context;
+[MatrixObject](https://github.com/matrixarkai/MatrixObject) provides distributed object storage;
+[MatrixCache](https://github.com/matrixarkai/matrixcache) provides embedded tiered caching;
+[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus; and
+[MatrixArk](https://github.com/matrixarkai/matrixark) provides the Python context runtime.
+Each project is independently usable and Apache-2.0 licensed. This demo does not require
+deploying those services; its serving path uses the local indexes described below.
+
 ## The indexes are a build artifact
 
 `python -m app.build_index` derives the corpus, the inverted targeting index, the IVF ANN
@@ -98,10 +108,16 @@ randomises per process, so two runs of the same image would otherwise score diff
 
 ## Deliberately out of scope
 
-pCVR and conversion objectives; budget pacing and frequency capping; a two-tower encoder trained
-with in-batch negatives; GBDT or a small MLP for the interactions a linear model on hashed
-crosses cannot reach; real click logs instead of a simulator; counterfactual evaluation from
+Budget pacing and frequency capping; a two-tower encoder trained
+with in-batch negatives; a small MLP ranker; real click logs instead of a simulator;
+counterfactual evaluation from
 logged propensities; compressed posting lists.
+
+Conversion prediction and CPA pricing are implemented; see [pCVR and the conversion
+objective](#pcvr-and-the-conversion-objective). Conversion labels are generated at click
+time, so this does not model delayed production feedback. The Docker command above runs
+a self-contained demonstration, not a distributed ads platform or a TemporalStore
+performance benchmark.
 
 ## Counting features are time-shifted
 
