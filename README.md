@@ -70,6 +70,30 @@ into a durable feature service. For online feature storage, use
 [TemporalStore](https://github.com/matrixarkai/TemporalStore) and its Feast
 integration; the demo does not provision those services automatically.
 
+## Start Here
+
+| Goal | Read |
+|---|---|
+| Run the interactive demo | The Docker commands above |
+| Understand the serving stages | [The pipeline](#the-pipeline) |
+| Explore the UI | [What the portal shows](#what-the-portal-shows) |
+| Understand persisted build outputs | [Index artifacts](#the-indexes-are-a-build-artifact) |
+| Evaluate conversion scoring | [Conversion objective](#pcvr-and-the-conversion-objective) |
+
+This is an executable demonstration with generated data, not an ads billing service or
+a distributed feature store. The reported model and retrieval results describe its
+corpus and settings; they are not production traffic guarantees.
+
+## Related Projects
+
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) provides temporal and online
+feature serving, including Feast integrations;
+[MatrixArk](https://github.com/matrixarkai/matrixark) provides the Python context runtime;
+[MatrixObject](https://github.com/matrixarkai/MatrixObject) provides distributed object storage;
+[MatrixCache](https://github.com/matrixarkai/matrixcache) provides embedded tiered caching; and
+[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus.
+These are separate Apache-2.0 projects, not required services for this standalone demo.
+
 ## The indexes are a build artifact
 
 `python -m app.build_index` derives the corpus, the inverted targeting index, the IVF ANN
@@ -141,15 +165,20 @@ randomises per process, so two runs of the same image would otherwise score diff
 
 ## Deliberately out of scope
 
-Budget pacing and frequency capping; a two-tower encoder trained with in-batch
-negatives; a small MLP; real click logs instead of a simulator; counterfactual
-evaluation from logged propensities; compressed posting lists; delayed conversion
-feedback.
+Budget pacing and frequency capping; a two-tower encoder trained
+with in-batch negatives; a small MLP ranker; real click logs instead of a simulator;
+counterfactual evaluation from
+logged propensities; compressed posting lists.
 
-The demo does include [pCVR and conversion pricing](#pcvr-and-the-conversion-objective)
-and an [optional GBDT experiment](#the-gbdt-attempt-and-why-it-is-off-by-default).
-Those paths use synthetic data, and the GBDT is disabled by default; neither is
-a claim of production model quality.
+Conversion prediction and CPA pricing are implemented; see [pCVR and the conversion
+objective](#pcvr-and-the-conversion-objective). Conversion labels are generated at click
+time, so this does not model delayed production feedback. The Docker command above runs
+a self-contained demonstration, not a distributed ads platform or a TemporalStore
+performance benchmark.
+
+The demo also includes an [optional GBDT experiment](#the-gbdt-attempt-and-why-it-is-off-by-default).
+It uses synthetic data and is disabled by default; neither model is a claim of
+production quality.
 
 ## Counting features are time-shifted
 
