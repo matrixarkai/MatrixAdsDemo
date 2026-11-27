@@ -6,6 +6,12 @@ Issues and pull requests from outside are welcome — see
 
 ## Project and community
 
+**On this page:** [Run the demo](#overview) | [Index lifecycle](#the-indexes-are-a-build-artifact) |
+[Pipeline](#the-pipeline) | [Portal](#what-the-portal-shows) |
+[Conversion objective](#pcvr-and-the-conversion-objective) |
+[Optional GBDT](#the-gbdt-attempt-and-why-it-is-off-by-default) |
+[Limitations](#deliberately-out-of-scope).
+
 - [Public source](https://github.com/matrixarkai/MatrixAdsDemo),
   [issues](https://github.com/matrixarkai/MatrixAdsDemo/issues), and
   [pull requests](https://github.com/matrixarkai/MatrixAdsDemo/pulls).
@@ -26,9 +32,43 @@ because the interesting parts of both are the parts a library hides.
 
 ```bash
 docker build -t ads-demo .          # builds the indexes INTO the image (~90s)
-docker run -d --name ads -p 8080:8080 ads-demo
+docker run -d --name ads -p 127.0.0.1:8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
+
+The host binding above keeps this demonstration local. It does not configure
+authentication, TLS, or production traffic handling. After startup, inspect the
+same generated corpus through the portal or the read-only JSON endpoints:
+
+```bash
+curl -fsS http://127.0.0.1:8080/api/metrics
+curl -fsS 'http://127.0.0.1:8080/api/users?seed=1'
+curl -fsS 'http://127.0.0.1:8080/api/recommend?uid=0'
+curl -fsS 'http://127.0.0.1:8080/api/recommend?uid=0&nprobe=16&strategy=filtered_ann'
+docker stop ads
+docker rm ads
+```
+
+Use a generated `uid` from `/api/users` when comparing requests. The handler
+maps numeric IDs into the generated corpus; it is not an external user-identity
+lookup. Choose the retrieval strategy explicitly:
+
+| `strategy` | Candidate selection |
+|---|---|
+| `filtered_ann` | Default: constrain approximate search to eligible ads. |
+| `search_then_filter` | Search the global ANN index, then remove ineligible candidates. |
+| `exact_in_eligible` | Score the eligible set exactly as a retrieval control. |
+
+`nprobe` defaults to 8 and changes ANN search breadth, not the corpus or model.
+It does not turn exact eligible-set scoring into an ANN search. Compare the
+same user, built index, and scoring model when changing retrieval settings;
+candidate recall and end-to-end auction output are different measurements.
+The HTTP handler and parameter defaults are in [the server](app/serve.py).
+
+Stopping or removing this container does not turn its generated measurements
+into a durable feature service. For online feature storage, use
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) and its Feast
+integration; the demo does not provision those services automatically.
 
 ## Start Here
 
@@ -69,9 +109,6 @@ The artifact records a signature over the scale knobs, the seed and a hash of `a
 any of those move, the loader rejects it and rebuilds, because an index that loads cleanly and
 answers for a different corpus is worse than no index at all. `REBUILD=1` forces a rebuild.
 
-Only dependency is numpy. The ANN index and the CTR model are written out by hand, because the
-interesting parts of both are the parts a library hides.
-
 ## The pipeline
 
 ```
@@ -88,6 +125,12 @@ evaluation at build time and the portal reports the result. "Relevant" has no ex
 ANN recall is a dial with a measured curve.
 
 ## What the portal shows
+
+Portal timings describe this generated corpus and the current retrieval settings.
+Keep the built image, user IDs, strategy, and search breadth fixed when comparing
+runs. Inspect recall and funnel counts with latency: scoring fewer eligible
+candidates can be faster while changing auction results. These measurements do
+not establish the throughput or durability of a distributed feature store.
 
 | tab | what is on it |
 | --- | --- |
@@ -132,6 +175,10 @@ objective](#pcvr-and-the-conversion-objective). Conversion labels are generated 
 time, so this does not model delayed production feedback. The Docker command above runs
 a self-contained demonstration, not a distributed ads platform or a TemporalStore
 performance benchmark.
+
+The demo also includes an [optional GBDT experiment](#the-gbdt-attempt-and-why-it-is-off-by-default).
+It uses synthetic data and is disabled by default; neither model is a claim of
+production quality.
 
 ## Counting features are time-shifted
 
