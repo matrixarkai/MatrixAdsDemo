@@ -122,10 +122,16 @@ randomises per process, so two runs of the same image would otherwise score diff
 
 ## Deliberately out of scope
 
-pCVR and conversion objectives; budget pacing and frequency capping; a two-tower encoder trained
-with in-batch negatives; GBDT or a small MLP for the interactions a linear model on hashed
-crosses cannot reach; real click logs instead of a simulator; counterfactual evaluation from
+Budget pacing and frequency capping; a two-tower encoder trained
+with in-batch negatives; a small MLP ranker; real click logs instead of a simulator;
+counterfactual evaluation from
 logged propensities; compressed posting lists.
+
+Conversion prediction and CPA pricing are implemented; see [pCVR and the conversion
+objective](#pcvr-and-the-conversion-objective). Conversion labels are generated at click
+time, so this does not model delayed production feedback. The Docker command above runs
+a self-contained demonstration, not a distributed ads platform or a TemporalStore
+performance benchmark.
 
 ## Counting features are time-shifted
 
