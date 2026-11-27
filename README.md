@@ -1,7 +1,20 @@
 # MatrixAdsDemo — inverted targeting, ANN retrieval, calibrated pCTR, auction
 
 **Open source under Apache-2.0, for anyone in the world to use, fork, modify and contribute to.**
-Issues and pull requests from outside are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests from outside are welcome — see
+[the contribution guide](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CONTRIBUTING.md).
+
+## Project and community
+
+- [Public source](https://github.com/matrixarkai/MatrixAdsDemo),
+  [issues](https://github.com/matrixarkai/MatrixAdsDemo/issues), and
+  [pull requests](https://github.com/matrixarkai/MatrixAdsDemo/pulls).
+- [Apache-2.0 license](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/LICENSE)
+  and [notices](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/NOTICE).
+- [Code of conduct](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/CODE_OF_CONDUCT.md)
+  and [security policy](https://github.com/matrixarkai/MatrixAdsDemo/blob/main/SECURITY.md).
+
+## Overview
 
 A short-video style ads recommender, small enough to read end to end. The point is the shape of the
 pipeline and the measurements beside it, not scale: exact eligibility, approximate retrieval,
@@ -17,15 +30,29 @@ docker run -d --name ads -p 8080:8080 ads-demo
 # http://localhost:8080   (serving ~4s after start)
 ```
 
+## Start Here
+
+| Goal | Read |
+|---|---|
+| Run the interactive demo | The Docker commands above |
+| Understand the serving stages | [The pipeline](#the-pipeline) |
+| Explore the UI | [What the portal shows](#what-the-portal-shows) |
+| Understand persisted build outputs | [Index artifacts](#the-indexes-are-a-build-artifact) |
+| Evaluate conversion scoring | [Conversion objective](#pcvr-and-the-conversion-objective) |
+
+This is an executable demonstration with generated data, not an ads billing service or
+a distributed feature store. The reported model and retrieval results describe its
+corpus and settings; they are not production traffic guarantees.
+
 ## Related Projects
 
-[TemporalStore](https://github.com/matrixarkai/TemporalStore) serves temporal features and context;
+[TemporalStore](https://github.com/matrixarkai/TemporalStore) provides temporal and online
+feature serving, including Feast integrations;
+[MatrixArk](https://github.com/matrixarkai/matrixark) provides the Python context runtime;
 [MatrixObject](https://github.com/matrixarkai/MatrixObject) provides distributed object storage;
-[MatrixCache](https://github.com/matrixarkai/matrixcache) provides embedded tiered caching;
-[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus; and
-[MatrixArk](https://github.com/matrixarkai/matrixark) provides the Python context runtime.
-Each project is independently usable and Apache-2.0 licensed. This demo does not require
-deploying those services; its serving path uses the local indexes described below.
+[MatrixCache](https://github.com/matrixarkai/matrixcache) provides embedded tiered caching; and
+[MatrixRaft](https://github.com/matrixarkai/matrixraft) provides consensus.
+These are separate Apache-2.0 projects, not required services for this standalone demo.
 
 ## The indexes are a build artifact
 
